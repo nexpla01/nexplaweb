@@ -106,108 +106,107 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("scroll",updateStage,{passive:true});updateStage();
   }
 
-  // V5 cinematic scroll choreography — GSAP/ScrollTrigger.
-  if (window.gsap && window.ScrollTrigger) {
+
+  // V6 — real spatial scene: Three.js + GSAP ScrollTrigger + DOM/WebGL sync.
+  // The scene is deliberately sparse: scroll changes the composition, not just scale.
+  if (window.THREE && window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
-    const hero = document.getElementById("vision");
-    const scene = document.getElementById("heroNetwork");
-    if (hero && scene && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      scene.classList.add("hero-cinematic-scroll");
-      const chips = gsap.utils.toArray(scene.querySelectorAll(".data-chip"));
-      const labels = gsap.utils.toArray(scene.querySelectorAll(".story-label"));
-      const lines = gsap.utils.toArray(scene.querySelectorAll(".story-line"));
-      const signals = gsap.utils.toArray(scene.querySelectorAll(".story-signal"));
-      const legacy = scene.querySelector(".legacy-product");
-      const ai = scene.querySelector(".ai-product");
-      const captions = {
-        context: scene.querySelector(".caption-context"),
-        intelligence: scene.querySelector(".caption-intelligence"),
-        action: scene.querySelector(".caption-action")
-      };
-      const words = {
-        connect: scene.querySelector(".word-connect"),
-        intelligence: scene.querySelector(".word-intelligence"),
-        action: scene.querySelector(".word-action")
-      };
-      const svg = scene.querySelector(".hero-story-svg");
-      const core = scene.querySelector(".hero-core");
-      const logo = scene.querySelector(".hero-core-logo");
-      const backdrop = scene.querySelector(".hero-scene-backdrop");
-      const grid = scene.querySelector(".hero-scene-grid");
-      const state = scene.querySelector("#sceneState");
-      const metric = scene.querySelector("#sceneMetric");
-      const metricValue = scene.querySelector("#sceneMetricValue");
+    const section = document.querySelector('.cinematic-hero');
+    const canvas = document.getElementById('nexplaCanvas');
+    const stage = document.getElementById('nexplaStage');
+    if (section && canvas && stage && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true, powerPreference:'high-performance'});
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
+      renderer.setClearColor(0xffffff, 0);
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(-6,6,4.2,-4.2,.1,100);
+      camera.position.z=20;
 
-      // Initial composition: fragments are visible, but not yet connected.
-      gsap.set(chips,{opacity:.72,scale:.92});
-      gsap.set(labels,{opacity:.75});
-      gsap.set(lines,{opacity:.18,strokeDashoffset:0});
-      gsap.set(signals,{opacity:.18});
-      gsap.set(legacy,{opacity:.62,x:0});
-      gsap.set(ai,{opacity:0,x:35});
-      gsap.set(captions.context,{opacity:1,filter:"blur(0px)",y:0});
-      gsap.set(words.intelligence,{opacity:0});
-      gsap.set(words.action,{opacity:0});
-
-      const tl = gsap.timeline({
-        defaults:{ease:"power3.inOut"},
-        scrollTrigger:{
-          trigger:hero, start:"top top", end:"bottom bottom", scrub:1.15
-        }
+      const group = new THREE.Group();
+      scene.add(group);
+      const network = new THREE.Group();
+      group.add(network);
+      const points=[];
+      const base=[[-3.3,1.6],[-2.7,-.5],[-1.9,-2.0],[2.8,1.7],[3.2,.1],[2.5,-1.9],[-.2,2.5],[.2,-2.55]];
+      base.forEach((p,i)=>{
+        const geo=new THREE.CircleGeometry(i<6?.085:.065,24);
+        const mat=new THREE.MeshBasicMaterial({color:i<6?0x106860:0x6fa6a0,transparent:true,opacity:i<6?.85:.55});
+        const m=new THREE.Mesh(geo,mat);m.position.set(p[0],p[1],0);m.userData={baseX:p[0],baseY:p[1],i};network.add(m);points.push(m);
       });
+      const lineMat=new THREE.LineBasicMaterial({color:0x74aaa4,transparent:true,opacity:.24});
+      const lineGroup=new THREE.Group(); network.add(lineGroup);
+      const edgePairs=[[0,6],[6,3],[3,4],[4,5],[5,7],[7,2],[2,1],[1,0],[6,7],[1,6],[4,7]];
+      const lines=[];
+      edgePairs.forEach(([a,b])=>{
+        const g=new THREE.BufferGeometry().setFromPoints([points[a].position.clone(),points[b].position.clone()]);
+        const l=new THREE.Line(g,lineMat.clone());lineGroup.add(l);lines.push(l);
+      });
+      // Fine particles give depth without turning the scene into a noisy starfield.
+      const particleCount=100, arr=new Float32Array(particleCount*3);
+      for(let i=0;i<particleCount;i++){const a=Math.random()*Math.PI*2,r=2+Math.random()*3.2;arr[i*3]=Math.cos(a)*r;arr[i*3+1]=Math.sin(a)*r*.72;arr[i*3+2]=(Math.random()-.5)*.2}
+      const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(arr,3));
+      const pm=new THREE.PointsMaterial({color:0x6fa6a0,size:.025,transparent:true,opacity:.42,sizeAttenuation:true});
+      const particles=new THREE.Points(pg,pm);network.add(particles);
+      const glow=new THREE.Mesh(new THREE.CircleGeometry(2.1,64),new THREE.MeshBasicMaterial({color:0x106860,transparent:true,opacity:.055,depthWrite:false}));group.add(glow);
+      const core=new THREE.Mesh(new THREE.CircleGeometry(.82,64),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.98}));group.add(core);
+      const coreRing=new THREE.Mesh(new THREE.RingGeometry(.82,.84,64),new THREE.MeshBasicMaterial({color:0x106860,transparent:true,opacity:.5,side:THREE.DoubleSide}));group.add(coreRing);
+      let logo;
+      new THREE.TextureLoader().load('assets/nexpla-icon.png',tex=>{
+        const mat=new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false});
+        logo=new THREE.Sprite(mat);logo.scale.set(1.0,1.0,1);logo.position.z=.2;group.add(logo);
+      });
+      const actionGroup=new THREE.Group();actionGroup.position.set(2.0,-.1,.3);actionGroup.scale.set(.001,.001,.001);scene.add(actionGroup);
 
-      // 0 → 30%: fragmented context converges.
-      tl.to(chips,{duration:1,opacity:1,scale:1,stagger:.045},0)
-        .to(labels,{duration:.75,opacity:1,stagger:.035},0)
-        .to(lines,{duration:1.1,opacity:.45,strokeDashoffset:-28,stagger:.02},.12)
-        .to(signals,{duration:1,opacity:.65,stagger:.025},.12)
-        .to(scene.querySelector(".hero-core-halo"),{duration:.9,scale:1.12,opacity:.9},.2)
-        .to(backdrop,{duration:1,scale:1.08,opacity:1},.2)
-        .to(grid,{duration:1,opacity:.72,y:-12},.2)
-        .to(captions.context,{duration:.5,opacity:0,filter:"blur(5px)",y:-12},.72)
-        .to(words.connect,{duration:.5,opacity:.65,scale:1},.76)
-        .to(words.connect,{duration:.6,opacity:0,scale:1.08},1.25)
+      const resize=()=>{const r=stage.getBoundingClientRect();const w=Math.max(1,r.width),h=Math.max(1,r.height),aspect=w/h;const view=4.2;camera.top=view;camera.bottom=-view;camera.left=-view*aspect;camera.right=view*aspect;camera.updateProjectionMatrix();renderer.setSize(w,h,false)};
+      resize();window.addEventListener('resize',resize,{passive:true});
+      let mouseX=0,mouseY=0,smx=0,smy=0;stage.addEventListener('pointermove',e=>{const r=stage.getBoundingClientRect();mouseX=((e.clientX-r.left)/r.width-.5)*.28;mouseY=((e.clientY-r.top)/r.height-.5)*.22});stage.addEventListener('pointerleave',()=>{mouseX=0;mouseY=0});
+      const render=()=>{smx+=(mouseX-smx)*.04;smy+=(mouseY-smy)*.04;network.rotation.y=smx;network.rotation.x=smy;particles.rotation.z+=.00035;glow.scale.setScalar(1+Math.sin(performance.now()*.0012)*.035);coreRing.rotation.z+=.001;renderer.render(scene,camera);requestAnimationFrame(render)};render();
 
-      // 30 → 58%: enter the intelligence layer.
-        .to(chips,{duration:1,opacity:.16,scale:.72,x:0,y:0,stagger:.03},1.3)
-        .to(labels,{duration:.75,opacity:.2,scale:.8,stagger:.025},1.35)
-        .to(lines,{duration:.8,opacity:.72,strokeDashoffset:-90,stagger:.02},1.35)
-        .to(svg,{duration:1.1,scale:1.13,rotation:-2},1.35)
-        .to(core,{duration:.8,scale:1.18},1.55)
-        .to(logo,{duration:.8,scale:1.16,rotation:3},1.55)
-        .to(words.intelligence,{duration:.55,opacity:.85,scale:1},1.75)
-        .to(captions.intelligence,{duration:.5,opacity:1,filter:"blur(0px)",y:0},1.9)
-        .call(()=>{state.textContent="INTELLIGENCE LAYER ACTIVE";metric.textContent="UNDERSTAND · DECIDE · EXECUTE";metricValue.textContent="→ ACTION, NOT JUST ANSWERS"},[],1.9)
-        .to(words.intelligence,{duration:.5,opacity:0,scale:1.08},2.45)
-        .to(captions.intelligence,{duration:.45,opacity:0,filter:"blur(5px)",y:-10},2.5)
-
-      // 58 → 82%: move from intelligence into action.
-        .to(legacy,{duration:.8,opacity:.08,x:-55,rotationY:18},2.65)
-        .to(ai,{duration:.9,opacity:1,x:0,rotationY:-3},2.75)
-        .to(labels,{duration:.7,opacity:.1,scale:.72,stagger:.02},2.75)
-        .to(lines,{duration:.7,opacity:.28},2.75)
-        .to(svg,{duration:1,scale:1.2,rotation:2},2.75)
-        .to(words.action,{duration:.5,opacity:.8,scale:1},3.05)
-        .to(captions.action,{duration:.5,opacity:1,filter:"blur(0px)",y:0},3.2)
-        .call(()=>{metric.textContent="LIVE WORKFLOW";metricValue.textContent="→ EXECUTE INSIDE THE ERP"},[],3.2)
-        .to(words.action,{duration:.55,opacity:0,scale:1.1},3.72)
-        .to(captions.action,{duration:.45,opacity:0,filter:"blur(5px)",y:-10},3.78)
-
-      // 82 → 100%: reveal the connected ecosystem.
-        .to(ai,{duration:.75,opacity:.25,scale:.88,x:0},3.95)
-        .to(chips,{duration:.9,opacity:.35,scale:.82,stagger:.025},3.95)
-        .to(labels,{duration:.7,opacity:.65,scale:1,stagger:.025},4.0)
-        .to(lines,{duration:1,opacity:.55,strokeDashoffset:-180},4.0)
-        .to(svg,{duration:1.1,scale:1.05,rotation:0},4.0)
-        .to(captions.context,{duration:.45,opacity:1,filter:"blur(0px)",y:0},4.25)
-        .call(()=>{state.textContent="BUILT FOR THE ECOSYSTEM";metric.textContent="ERP · INTELLIGENCE · PLATFORM";metricValue.textContent="→ OTHERS BUILD ON IT"},[],4.25);
-
-      // Micro-interaction: the scene has gentle pointer depth, independent of scroll.
-      let px=0,py=0,tx=0,ty=0;
-      scene.addEventListener("pointermove",e=>{const r=scene.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*8;ty=((e.clientY-r.top)/r.height-.5)*6});
-      scene.addEventListener("pointerleave",()=>{tx=0;ty=0});
-      gsap.ticker.add(()=>{px+=(tx-px)*.05;py+=(ty-py)*.05;gsap.set(svg,{x:px,y:py})});
+      const $v=s=>stage.querySelector(s); const chips=gsap.utils.toArray(stage.querySelectorAll('.data-card-v6'));
+      const copy=$v('.hero-copy-v6'),ui=$v('.stage-ui'),headline=$v('#v6Headline'),subline=$v('#v6Subline'),state=$v('#v6State');
+      const legacy=$v('#legacyUI'),action=$v('#actionUI'),transform=$v('#transformPill'),platform=$v('#platformPill'),scrollCue=$v('.stage-scroll');
+      gsap.set(chips,{opacity:0,y:18,scale:.94});gsap.set(ui,{opacity:0,y:18});gsap.set(legacy,{opacity:0});gsap.set(action,{opacity:0});gsap.set(transform,{opacity:0,y:15});gsap.set(platform,{opacity:0,y:15});
+      const tl=gsap.timeline({scrollTrigger:{trigger:section,start:'top top',end:'bottom bottom',scrub:1.05}});
+      // 0–22%: establish the world.
+      tl.to(copy,{opacity:1,duration:.5},0)
+        .to(ui,{opacity:1,y:0,duration:.6},.05)
+        .to(chips,{opacity:.9,y:0,scale:1,duration:.7,stagger:.06},.08)
+        .to(network.scale,{x:1,y:1,z:1,duration:.7},0)
+        // 22–42%: fragments connect and converge.
+        .to(chips,{x:0,y:0,opacity:.25,scale:.82,duration:1.1,stagger:.03},.95)
+        .to(copy,{opacity:.22,x:-35,duration:.8},1.0)
+        .to(network.scale,{x:1.13,y:1.13,z:1.13,duration:1},1.05)
+        .to(camera.position,{x:.35,y:.05,z:18.3,duration:1},1.05)
+        .call(()=>{state.textContent='CONTEXT BECOMES VISIBLE';headline.textContent='The context already exists.';subline.textContent='Data · Workflows · Customers · Business logic'},[],1.2)
+        // 42–62%: enter intelligence layer.
+        .to(legacy,{opacity:1,y:0,duration:.7},1.78)
+        .call(()=>{state.textContent='SYSTEM OF RECORD';headline.textContent='The software already knows the business.';subline.textContent='A familiar system. Decades of operational context.'},[],1.8)
+        .to(ui,{y:-25,opacity:.7,duration:.6},1.9)
+        .to(network.scale,{x:1.48,y:1.48,z:1.48,duration:1.2},1.95)
+        .to(glow.scale,{x:1.25,y:1.25,z:1.25,duration:1},2.0)
+        .to(core.scale,{x:1.15,y:1.15,z:1.15,duration:1},2.0)
+        .to(legacy,{opacity:.12,y:-20,duration:.65},2.12)
+        .to(transform,{opacity:1,y:0,duration:.7},2.25)
+        .call(()=>{state.textContent='INTELLIGENCE LAYER ACTIVE';headline.textContent='Understand · Decide · Execute.';subline.textContent='Not just answers. Action inside the workflow.'},[],2.3)
+        // 62–80%: the spatial network morphs into the action UI.
+        .to(transform,{opacity:0,y:-12,duration:.5},3.0)
+        .to(network.scale,{x:1.7,y:1.7,z:1.7,duration:.8},3.0)
+        .to(action,{opacity:1,x:0,y:0,duration:1},3.05)
+        .to(ui,{opacity:0,y:-35,duration:.5},3.1)
+        .to(core.scale,{x:.82,y:.82,z:.82,duration:.7},3.15)
+        .call(()=>{state.textContent='ACTION INSIDE THE WORKFLOW';headline.textContent='From insight to action.';subline.textContent='The system can do the work.'},[],3.35)
+        // 80–100%: pull back and reveal platform.
+        .to(action,{opacity:.15,x:0,y:-20,scale:.86,duration:.8},4.0)
+        .to(network.scale,{x:1.05,y:1.05,z:1.05,duration:1.1},4.0)
+        .to(camera.position,{x:0,y:0,z:20,duration:1.1},4.0)
+        .to(platform,{opacity:1,y:0,duration:.7},4.25)
+        .to(copy,{opacity:0,x:-70,duration:.8},4.15)
+        .call(()=>{state.textContent='BUILT FOR THE ECOSYSTEM';headline.textContent='Start with ERP. Build beyond it.';subline.textContent='ERP · Intelligence · APIs · Agents · Services'},[],4.35)
+        .to(scrollCue,{opacity:0,duration:.4},4.3);
+      // Text/canvas sync: the DOM remains crisp while the WebGL layer moves underneath it.
     }
+  } else {
+    document.documentElement.classList.add('motion-fallback');
   }
 
   $("#year").textContent = new Date().getFullYear();

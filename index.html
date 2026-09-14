@@ -35,99 +35,51 @@
   </div>
 
   <main id="top">
-    <!-- HERO -->
-    <section class="hero section-pad" id="vision">
-      <div class="hero-copy reveal">
-        <p class="eyebrow">INTELLIGENCE FOR A HEALTHIER TOMORROW</p>
-        <h1>Building the intelligence layer <em>for Pharma.</em></h1>
-        <p class="hero-sub">
-          We partner with the software that already runs the industry — and bring intelligence to the workflows that power pharma businesses.
-        </p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="#platform">Explore Our Vision <span>→</span></a>
-          <button class="text-button" data-open-partner>Partner With Us <span>↗</span></button>
-        </div>
-        <p class="hero-note">Trusted workflows. Deeper insights. A more connected ecosystem.</p>
-      </div>
-
-      <div class="hero-visual reveal reveal-delay" id="heroNetwork" aria-label="Nexpla intelligence layer visualization">
-        <div class="hero-scene-backdrop"></div>
-        <div class="hero-scene-grid"></div>
-        <div class="scene-kicker"><span></span><b id="sceneState">CONNECTING THE ECOSYSTEM</b></div>
-
-        <div class="data-orbit orbit-left">
-          <div class="data-chip chip-inventory"><span>INVENTORY</span><b>12,480 SKUs</b></div>
-          <div class="data-chip chip-orders"><span>ORDERS</span><b>342 PENDING</b></div>
-          <div class="data-chip chip-customers"><span>CUSTOMERS</span><b>3,300+</b></div>
-        </div>
-        <div class="data-orbit orbit-right">
-          <div class="data-chip chip-purchases"><span>PURCHASES</span><b>₹12.8L</b></div>
-          <div class="data-chip chip-collections"><span>COLLECTIONS</span><b>₹18.4L</b></div>
-          <div class="data-chip chip-workflows"><span>WORKFLOWS</span><b>ACTIVE</b></div>
+    <!-- CINEMATIC HERO -->
+    <section class="cinematic-hero" id="vision">
+      <div class="cinematic-pin">
+        <div class="hero-copy-v6">
+          <p class="eyebrow">INTELLIGENCE FOR A HEALTHIER TOMORROW</p>
+          <h1>Building the intelligence layer <em>for Pharma.</em></h1>
+          <p class="hero-sub">We partner with the software that already runs the industry — and bring intelligence to the workflows that power pharma businesses.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#platform">Explore Our Vision <span>→</span></a>
+            <button class="text-button" data-open-partner>Partner With Us <span>↗</span></button>
+          </div>
+          <p class="hero-note">Trusted workflows. Deeper insights. A more connected ecosystem.</p>
         </div>
 
-        <div class="cinematic-caption caption-context">
-          <span>THE SOFTWARE ALREADY KNOWS THE BUSINESS.</span>
-          <b>We preserve the context.</b>
-        </div>
-        <div class="cinematic-caption caption-intelligence">
-          <span>THEN WE MAKE IT INTELLIGENT.</span>
-          <b>Understand · Decide · Execute.</b>
-        </div>
-        <div class="cinematic-caption caption-action">
-          <span>NOT JUST ANSWERS.</span>
-          <b>Action inside the workflow.</b>
-        </div>
+        <div class="webgl-stage" id="nexplaStage" aria-label="Interactive Nexpla intelligence story">
+          <canvas id="nexplaCanvas"></canvas>
+          <div class="stage-vignette"></div>
+          <div class="stage-ui">
+            <div class="stage-kicker"><span></span><b id="v6State">THE SOFTWARE ALREADY KNOWS THE BUSINESS</b></div>
+            <div class="stage-headline" id="v6Headline">Context already exists.</div>
+            <div class="stage-subline" id="v6Subline">Inventory · Orders · Customers · Workflows</div>
+          </div>
 
-        <div class="hero-product-card legacy-product">
-          <div class="product-bar"><span></span><span></span><span></span><b>PHARMA ERP</b></div>
-          <div class="product-body"><div class="product-nav"><i></i><i></i><i></i><i></i></div><div><small>SALES & DISTRIBUTION</small><strong>₹24.8M</strong><div class="product-bars"><i></i><i></i><i></i></div></div></div>
+          <div class="data-card-v6 dc-inventory"><small>INVENTORY</small><b>12,480 SKUs</b></div>
+          <div class="data-card-v6 dc-orders"><small>ORDERS</small><b>342 PENDING</b></div>
+          <div class="data-card-v6 dc-customers"><small>CUSTOMERS</small><b>3,300+</b></div>
+          <div class="data-card-v6 dc-purchases"><small>PURCHASES</small><b>₹12.8L</b></div>
+          <div class="data-card-v6 dc-collections"><small>COLLECTIONS</small><b>₹18.4L</b></div>
+          <div class="data-card-v6 dc-workflows"><small>WORKFLOWS</small><b>ACTIVE</b></div>
+
+          <div class="legacy-ui-v6" id="legacyUI">
+            <div class="ui-top"><span></span><span></span><span></span><b>PHARMA ERP</b></div>
+            <div class="ui-body"><aside><i></i><i></i><i></i><i></i></aside><main><small>SALES & DISTRIBUTION</small><strong>₹24.8M</strong><div class="ui-bars"><i></i><i></i><i></i><i></i></div><div class="ui-table"><i></i><i></i><i></i></div></main></div>
+          </div>
+
+          <div class="action-ui-v6" id="actionUI">
+            <div class="action-top"><div><img src="assets/nexpla-icon.png" alt=""/><b>Nexpla</b></div><span><i></i> INTELLIGENCE</span></div>
+            <div class="action-question">Which distributors are likely to run out of stock next week?</div>
+            <div class="action-result"><small>ANALYSIS COMPLETE</small><strong>14 distributors at risk</strong><div><span>Highest risk</span><b>3 days</b></div><button>Execute recommendation <em>→</em></button></div>
+          </div>
+
+          <div class="transform-pill" id="transformPill"><span>UNDERSTAND</span><i>→</i><span>DECIDE</span><i>→</i><span>EXECUTE</span></div>
+          <div class="platform-pill" id="platformPill"><span>ERP</span><i>→</i><b>INTELLIGENCE</b><i>→</i><span>PLATFORM</span></div>
+          <div class="stage-scroll"><span></span>SCROLL TO SEE IT TRANSFORM</div>
         </div>
-        <div class="hero-product-card ai-product">
-          <div class="product-bar"><div class="mini-brand"><img src="assets/nexpla-icon.png" alt=""/> <b>Nexpla</b></div><span class="live-dot">INTELLIGENCE</span></div>
-          <div class="ai-question">Which distributors are likely to run out of stock next week?</div>
-          <div class="ai-answer-mini"><small>ANALYSIS COMPLETE</small><strong>14 distributors at risk</strong><div><span>Highest risk</span><b>3 days</b></div><button>Execute recommendation →</button></div>
-        </div>
-
-        <div class="cinematic-word word-connect">CONNECT</div>
-        <div class="cinematic-word word-intelligence">INTELLIGENCE</div>
-        <div class="cinematic-word word-action">ACTION</div>
-
-        <svg class="hero-story-svg" viewBox="0 0 700 600" aria-hidden="true">
-          <defs>
-            <radialGradient id="heroCoreGlow"><stop offset="0" stop-color="#106860" stop-opacity=".30"/><stop offset=".52" stop-color="#106860" stop-opacity=".10"/><stop offset="1" stop-color="#106860" stop-opacity="0"/></radialGradient>
-            <linearGradient id="signalGradient" x1="0" x2="1"><stop stop-color="#106860" stop-opacity="0"/><stop offset=".5" stop-color="#106860"/><stop offset="1" stop-color="#106860" stop-opacity="0"/></linearGradient>
-          </defs>
-          <circle class="hero-glow" cx="350" cy="300" r="210" fill="url(#heroCoreGlow)"/>
-          <g class="story-lines" id="storyLines"></g>
-          <g class="story-signals" id="storySignals"></g>
-          <g class="story-nodes" id="storyNodes"></g>
-          <circle class="story-ring ring-outer" cx="350" cy="300" r="192"/>
-          <circle class="story-ring ring-inner" cx="350" cy="300" r="118"/>
-          <circle class="hero-core-halo" cx="350" cy="300" r="94"/>
-          <circle class="hero-core" cx="350" cy="300" r="72"/>
-          <image class="hero-core-logo" href="assets/nexpla-icon.png" x="303" y="253" width="94" height="94" preserveAspectRatio="xMidYMid meet"/>
-          <circle class="hero-core-pulse" cx="350" cy="300" r="80"/>
-        </svg>
-
-        <div class="story-label label-erp2">ERP</div>
-        <div class="story-label label-data2">DATA</div>
-        <div class="story-label label-workflows2">WORKFLOWS</div>
-        <div class="story-label label-ai2">INTELLIGENCE</div>
-        <div class="story-label label-ecosystem2">ECOSYSTEM</div>
-
-        <div class="hero-scene-core-caption"><span id="sceneMetric">YEARS OF PHARMA CONTEXT</span><b id="sceneMetricValue">→ ONE INTELLIGENCE LAYER</b></div>
-        <div class="hero-scroll-cue"><span></span>SCROLL TO SEE IT TRANSFORM</div>
-      </div>
-      <div class="hero-capabilities reveal">
-        <div><span class="cap-icon">◈</span><span>Inventory</span></div>
-        <div><span class="cap-icon">⌁</span><span>Procurement</span></div>
-        <div><span class="cap-icon">↗</span><span>Sales</span></div>
-        <div><span class="cap-icon">▱</span><span>Distribution</span></div>
-        <div><span class="cap-icon">◌</span><span>Collections</span></div>
-        <div><span class="cap-icon">▤</span><span>Finance</span></div>
-        <div><span class="cap-icon">□</span><span>Orders</span></div>
-        <div><span class="cap-icon">◇</span><span>Compliance</span></div>
       </div>
     </section>
 
@@ -425,6 +377,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

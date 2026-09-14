@@ -22,3 +22,8 @@ The motion system now follows a single narrative: **fragmented context → conne
 - `assets/`
 
 No build step or external runtime dependency is required.
+
+
+## V6 spatial narrative
+
+Rebuilt the hero around a scene-based WebGL + GSAP ScrollTrigger architecture. The WebGL layer handles the spatial network while HTML/CSS handles readable UI and copy. Scroll synchronizes the two: fragmented context → connection → intelligence → action → platform.
