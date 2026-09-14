@@ -40,3 +40,15 @@ Then visit `http://localhost:8000`.
 The “Ask Nexpla” assistant is intentionally a front-end prototype. For production, connect it to a controlled knowledge base / LLM endpoint rather than exposing an API key in browser code.
 
 For production performance, replace the Google Fonts import with self-hosted font files if desired and convert the supplied JPG logo to an optimized SVG/WEBP asset.
+
+
+## Motion update
+
+The hero now includes a custom SVG/canvas-free “living intelligence network”:
+- orbiting rings and flowing connection lines
+- independently floating nodes
+- animated signal particles
+- pulsing Nexpla core
+- pointer-based 3D parallax
+- reduced-motion support
+- no animation library or external runtime dependency

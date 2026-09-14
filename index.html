@@ -50,19 +50,38 @@
         <p class="hero-note">Trusted workflows. Deeper insights. A more connected ecosystem.</p>
       </div>
 
-      <div class="hero-visual reveal reveal-delay">
-        <div class="network-orbit"></div>
-        <div class="network-ring ring-1"></div>
-        <div class="network-ring ring-2"></div>
-        <div class="network-core">
-          <img src="assets/nexpla-icon.png" alt="" />
-        </div>
-        <button class="network-label label-erp" data-tooltip="Systems of record">ERP</button>
-        <button class="network-label label-data" data-tooltip="Years of industry context">DATA</button>
-        <button class="network-label label-workflows" data-tooltip="Real operational processes">WORKFLOWS</button>
-        <button class="network-label label-ai" data-tooltip="Understand · Decide · Execute">AI</button>
-        <button class="network-label label-ecosystem" data-tooltip="A more connected pharma industry">ECOSYSTEM</button>
+      <div class="hero-visual reveal reveal-delay" id="heroNetwork" aria-label="Nexpla intelligence network visualization">
+        <div class="network-glow"></div>
+        <svg class="intelligence-network" viewBox="0 0 620 620" role="img" aria-label="Connected ERP, data, workflow, AI and ecosystem nodes">
+          <defs>
+            <radialGradient id="coreGlow">
+              <stop offset="0%" stop-color="#106860" stop-opacity=".22"/>
+              <stop offset="70%" stop-color="#106860" stop-opacity=".05"/>
+              <stop offset="100%" stop-color="#106860" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="softGlow">
+              <feGaussianBlur stdDeviation="7"/>
+            </filter>
+          </defs>
+          <circle class="svg-glow" cx="310" cy="310" r="170" fill="url(#coreGlow)"/>
+          <circle class="svg-orbit orbit-a" cx="310" cy="310" r="188"/>
+          <circle class="svg-orbit orbit-b" cx="310" cy="310" r="132"/>
+          <g id="networkLines"></g>
+          <g id="networkParticles"></g>
+          <g id="networkNodes"></g>
+          <circle class="core-halo" cx="310" cy="310" r="82"/>
+          <circle class="core-disc" cx="310" cy="310" r="67"/>
+          <image href="assets/nexpla-icon.png" x="263" y="263" width="94" height="94" preserveAspectRatio="xMidYMid meet"/>
+          <circle class="core-pulse" cx="310" cy="310" r="76"/>
+        </svg>
+
+        <div class="network-label label-erp" data-tooltip="Systems of record">ERP</div>
+        <div class="network-label label-data" data-tooltip="Years of industry context">DATA</div>
+        <div class="network-label label-workflows" data-tooltip="Real operational processes">WORKFLOWS</div>
+        <div class="network-label label-ai" data-tooltip="Understand · Decide · Execute">AI</div>
+        <div class="network-label label-ecosystem" data-tooltip="A more connected pharma industry">ECOSYSTEM</div>
         <div class="hero-quote">SAME PEOPLE.<br/>SAME WORKFLOWS.<br/><strong>A SMARTER FUTURE.</strong></div>
+        <div class="network-status"><span></span>INTELLIGENCE LAYER <b>ACTIVE</b></div>
       </div>
 
       <div class="hero-capabilities reveal">

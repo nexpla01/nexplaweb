@@ -2,6 +2,77 @@ const $ = (s, p=document) => p.querySelector(s);
 const $$ = (s, p=document) => [...p.querySelectorAll(s)];
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  // Living Nexpla intelligence network: deterministic, lightweight, no external library.
+  const networkRoot = document.getElementById("heroNetwork");
+  const linesLayer = document.getElementById("networkLines");
+  const nodesLayer = document.getElementById("networkNodes");
+  const particlesLayer = document.getElementById("networkParticles");
+  if (networkRoot && linesLayer && nodesLayer && particlesLayer) {
+    const NS = "http://www.w3.org/2000/svg";
+    const cx = 310, cy = 310;
+    const nodes = [
+      {x:158,y:170,r:21,key:"ERP"},
+      {x:458,y:155,r:18,key:"DATA"},
+      {x:500,y:340,r:20,key:"AI"},
+      {x:390,y:485,r:18,key:"ECOSYSTEM"},
+      {x:135,y:390,r:17,key:"WORKFLOWS"},
+      {x:310,y:82,r:9,key:"context"},
+      {x:560,y:245,r:7,key:"signal"},
+      {x:235,y:525,r:8,key:"data"},
+      {x:75,y:275,r:7,key:"workflow"},
+      {x:420,y:70,r:6,key:"agent"}
+    ];
+    const edges = [
+      [0,1],[0,4],[0,5],[1,2],[1,9],[2,3],[2,6],[3,4],[3,7],[4,5],[4,8],[5,9],[0,9],[1,5]
+    ];
+    const lineEls = edges.map((e,i)=>{
+      const a=nodes[e[0]],b=nodes[e[1]];
+      const l=document.createElementNS(NS,"line");
+      l.setAttribute("x1",a.x);l.setAttribute("y1",a.y);l.setAttribute("x2",b.x);l.setAttribute("y2",b.y);
+      l.classList.add("network-line"); if(i<5) l.classList.add("strong");
+      l.style.animationDelay=`-${i*.31}s`; linesLayer.appendChild(l); return l;
+    });
+    nodes.forEach((n,i)=>{
+      const g=document.createElementNS(NS,"g"); g.classList.add("node-group");
+      const c=document.createElementNS(NS,"circle"); c.setAttribute("cx",n.x);c.setAttribute("cy",n.y);c.setAttribute("r",n.r); c.classList.add("network-node");
+      if(i>4) c.classList.add("network-node-core");
+      const inner=document.createElementNS(NS,"circle"); inner.setAttribute("cx",n.x);inner.setAttribute("cy",n.y);inner.setAttribute("r",Math.max(2.2,n.r*.22)); inner.setAttribute("fill","#106860");
+      g.appendChild(c);g.appendChild(inner);nodesLayer.appendChild(g);
+      g.style.animation=`nodeFloat ${3.2 + (i%4)*.45}s ease-in-out infinite`;
+      g.style.animationDelay=`-${i*.27}s`;
+    });
+    for(let i=0;i<22;i++){
+      const p=document.createElementNS(NS,"circle");
+      p.classList.add("network-particle");
+      p.setAttribute("r", i%4===0?2.4:1.3);
+      const a=(i*137.5)*Math.PI/180, rad=105+(i%7)*27;
+      p.dataset.baseX=cx+Math.cos(a)*rad; p.dataset.baseY=cy+Math.sin(a)*rad;
+      p.dataset.phase=i*.7; p.dataset.rad=rad; p.dataset.angle=a;
+      particlesLayer.appendChild(p);
+    }
+    let t=0, mx=0, my=0, tx=0, ty=0;
+    networkRoot.addEventListener("pointermove", e=>{
+      const r=networkRoot.getBoundingClientRect();
+      tx=((e.clientX-r.left)/r.width-.5)*12;
+      ty=((e.clientY-r.top)/r.height-.5)*12;
+    });
+    networkRoot.addEventListener("pointerleave",()=>{tx=0;ty=0});
+    const animate=()=>{
+      t+=.006; mx+=(tx-mx)*.045; my+=(ty-my)*.045;
+      networkRoot.style.transform=`perspective(900px) rotateX(${-my*.28}deg) rotateY(${mx*.28}deg)`;
+      [...particlesLayer.children].forEach((p,i)=>{
+        const base=+p.dataset.rad, ang=+p.dataset.angle, phase=+p.dataset.phase;
+        const a=ang+t*(i%2?0.32:-0.23);
+        const rr=base+Math.sin(t*1.7+phase)*7;
+        p.setAttribute("cx",cx+Math.cos(a)*rr); p.setAttribute("cy",cy+Math.sin(a)*rr);
+        p.style.opacity=.22+.28*(.5+.5*Math.sin(t*2+phase));
+      });
+      requestAnimationFrame(animate);
+    };
+    const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(!reduce) requestAnimationFrame(animate);
+  }
   $("#year").textContent = new Date().getFullYear();
 
   // Scroll progress
