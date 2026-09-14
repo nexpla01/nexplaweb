@@ -73,6 +73,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if(!reduce) requestAnimationFrame(animate);
   }
+
+  // V4 cinematic hero: a continuous story from fragmented context to intelligence.
+  const hero = document.getElementById("heroNetwork");
+  const storyLines = document.getElementById("storyLines");
+  const storyNodes = document.getElementById("storyNodes");
+  const storySignals = document.getElementById("storySignals");
+  const sceneState = document.getElementById("sceneState");
+  const sceneMetric = document.getElementById("sceneMetric");
+  const sceneMetricValue = document.getElementById("sceneMetricValue");
+  if(hero && storyLines && storyNodes && storySignals){
+    const NS="http://www.w3.org/2000/svg", cx=350, cy=300;
+    const nodes=[
+      {x:110,y:145,r:17,key:"inventory"},{x:225,y:82,r:14,key:"orders"},{x:475,y:86,r:15,key:"customers"},
+      {x:590,y:155,r:17,key:"purchases"},{x:610,y:385,r:15,key:"collections"},{x:475,y:510,r:16,key:"workflows"},
+      {x:225,y:515,r:14,key:"finance"},{x:95,y:385,r:16,key:"distribution"}
+    ];
+    const edges=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[0,7],[1,7],[2,5],[3,5],[4,6],[0,2]];
+    edges.forEach((e,i)=>{const a=nodes[e[0]],b=nodes[e[1]],l=document.createElementNS(NS,"line");l.setAttribute("x1",a.x);l.setAttribute("y1",a.y);l.setAttribute("x2",b.x);l.setAttribute("y2",b.y);l.classList.add("story-line");if(i%3===0)l.classList.add("hot");l.style.animationDelay=`-${i*.19}s`;storyLines.appendChild(l)});
+    nodes.forEach((n,i)=>{const g=document.createElementNS(NS,"g");g.classList.add("story-node-group");const c=document.createElementNS(NS,"circle");c.setAttribute("cx",n.x);c.setAttribute("cy",n.y);c.setAttribute("r",n.r);c.classList.add("story-node");const d=document.createElementNS(NS,"circle");d.setAttribute("cx",n.x);d.setAttribute("cy",n.y);d.setAttribute("r",3.2);d.classList.add("story-node-dot");g.append(c,d);g.style.animation=`nodeFloat ${3.5+(i%4)*.35}s ease-in-out infinite`;g.style.animationDelay=`-${i*.25}s`;storyNodes.appendChild(g)});
+    for(let i=0;i<16;i++){const p=document.createElementNS(NS,"circle");p.setAttribute("r",i%3===0?2.6:1.5);p.classList.add("story-signal");p.dataset.i=i;p.dataset.a=(i/16)*Math.PI*2;p.dataset.r=155+(i%5)*22;storySignals.appendChild(p)}
+    let t=0,mx=0,my=0,tx=0,ty=0;
+    hero.addEventListener("pointermove",e=>{const r=hero.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*10;ty=((e.clientY-r.top)/r.height-.5)*8});
+    hero.addEventListener("pointerleave",()=>{tx=0;ty=0});
+    const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const animateHero=()=>{t+=.008;mx+=(tx-mx)*.04;my+=(ty-my)*.04;document.querySelector(".hero-story-svg").style.transform=`perspective(1000px) rotateX(${-my*.35}deg) rotateY(${mx*.35}deg)`;document.querySelector(".hero-scene-backdrop").style.transform=`translate(${mx*.35}px,${my*.25}px)`;[...storySignals.children].forEach((p,i)=>{const a=+p.dataset.a+t*(i%2?.22:-.17),r=+p.dataset.r+Math.sin(t*1.5+i)*8;p.setAttribute("cx",cx+Math.cos(a)*r);p.setAttribute("cy",cy+Math.sin(a)*r);p.style.opacity=.25+.4*(.5+.5*Math.sin(t*2+i))});if(!reduce)requestAnimationFrame(animateHero)};
+    if(!reduce)requestAnimationFrame(animateHero);
+
+    const setStage=(stage)=>{hero.classList.remove("hero-scene-stage-2","hero-scene-stage-3","hero-scene-stage-4");if(stage>1)hero.classList.add(`hero-scene-stage-${stage}`);const copy={1:["CONNECTING THE ECOSYSTEM","YEARS OF PHARMA CONTEXT","→ ONE INTELLIGENCE LAYER"],2:["CONTEXT BECOMES VISIBLE","DATA · WORKFLOWS · CUSTOMERS","→ A SHARED UNDERSTANDING"],3:["INTELLIGENCE LAYER ACTIVE","UNDERSTAND · DECIDE · EXECUTE","→ ACTION, NOT JUST ANSWERS"],4:["BUILT FOR THE ECOSYSTEM","ERP · INTELLIGENCE · PLATFORM","→ OTHERS BUILD ON IT"]}[stage];if(copy){sceneState.textContent=copy[0];sceneMetric.textContent=copy[1];sceneMetricValue.textContent=copy[2]}};
+    let lastStage=1;
+    const updateStage=()=>{const rect=hero.getBoundingClientRect(),p=Math.max(0,Math.min(1,(window.innerHeight*.72-rect.top)/(rect.height*.95)));const stage=p<.25?1:p<.52?2:p<.78?3:4;if(stage!==lastStage){lastStage=stage;setStage(stage)}};
+    window.addEventListener("scroll",updateStage,{passive:true});updateStage();
+  }
   $("#year").textContent = new Date().getFullYear();
 
   // Scroll progress
@@ -176,56 +208,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = card.dataset.detail;
     $("#workflowAnswer b").textContent = `“${workflowQuestions[name]}”`;
   }));
-
-
-  // Narrative transformation steps
-  const transformSteps = $$(".transform-step");
-  const transformStage = $("#transformStage");
-  const transformState = {
-    1: {legacy:"translateZ(-30px) rotateY(7deg)", intel:"translateZ(40px) rotateY(-2deg)"},
-    2: {legacy:"translateZ(-70px) rotateY(10deg) scale(.94)", intel:"translateZ(70px) rotateY(-3deg) scale(1.015)"},
-    3: {legacy:"translateZ(-120px) rotateY(13deg) scale(.88)", intel:"translateZ(95px) rotateY(-4deg) scale(1.025)"}
-  };
-  transformSteps.forEach(btn => btn.addEventListener("click", () => {
-    transformSteps.forEach(x=>x.classList.remove("active"));
-    btn.classList.add("active");
-    const state = transformState[btn.dataset.transform];
-    const legacy = transformStage?.querySelector(".legacy-window");
-    const intel = transformStage?.querySelector(".intelligence-window");
-    if(legacy && intel){ legacy.style.transform = state.legacy; intel.style.transform = state.intel; }
-  }));
-
-  // Make the AI demo feel like a state transition rather than a card swap.
-  $$(".ai-mode").forEach(btn => btn.addEventListener("click", () => {
-    const win = document.querySelector(".ai-window");
-    if(!win) return;
-    win.classList.remove("ai-thinking");
-    void win.offsetWidth;
-    win.classList.add("ai-thinking");
-    setTimeout(()=>win.classList.remove("ai-thinking"), 1050);
-  }));
-
-  // Subtle flywheel energy: the active pulse travels around the four ideas.
-  const flywheel = document.querySelector(".flywheel");
-  const flyNodes = $$(".fly-node");
-  if(flywheel && flyNodes.length && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
-    let fi=0;
-    setInterval(()=>{
-      flyNodes.forEach(n=>n.classList.remove("hot"));
-      flyNodes[fi % flyNodes.length].classList.add("hot");
-      fi++;
-    }, 1450);
-  }
-
-  // Section-aware pointer glow on the dark belief panel.
-  const belief = document.querySelector(".belief");
-  if(belief && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
-    belief.addEventListener("pointermove", e=>{
-      const r=belief.getBoundingClientRect();
-      belief.style.setProperty("--mx", `${((e.clientX-r.left)/r.width)*100}%`);
-      belief.style.setProperty("--my", `${((e.clientY-r.top)/r.height)*100}%`);
-    });
-  }
 
   // Ask Nexpla mini-assistant
   const askPanel = $("#askPanel"), askFab = $("#askFab"), askMessages = $("#askMessages"), askInput = $("#askInput");
