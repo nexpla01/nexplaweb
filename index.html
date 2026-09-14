@@ -51,6 +51,20 @@
 
         <div class="webgl-stage" id="nexplaStage" aria-label="Interactive Nexpla intelligence story">
           <canvas id="nexplaCanvas"></canvas>
+          <div class="spatial-dom" aria-hidden="true">
+            <div class="spatial-ring sr-one"></div>
+            <div class="spatial-ring sr-two"></div>
+            <div class="spatial-core"><img src="assets/nexpla-icon.png" alt=""/></div>
+            <div class="spatial-node sn-1"></div><div class="spatial-node sn-2"></div>
+            <div class="spatial-node sn-3"></div><div class="spatial-node sn-4"></div>
+            <div class="spatial-node sn-5"></div><div class="spatial-node sn-6"></div>
+            <div class="spatial-card sc-1"><small>INVENTORY</small><b>12,480 SKUs</b></div>
+            <div class="spatial-card sc-2"><small>ORDERS</small><b>342 PENDING</b></div>
+            <div class="spatial-card sc-3"><small>CUSTOMERS</small><b>3,300+</b></div>
+            <div class="spatial-card sc-4"><small>PURCHASES</small><b>₹12.8L</b></div>
+            <div class="spatial-card sc-5"><small>COLLECTIONS</small><b>₹18.4L</b></div>
+            <div class="spatial-card sc-6"><small>WORKFLOWS</small><b>ACTIVE</b></div>
+          </div>
           <div class="stage-vignette"></div>
           <div class="stage-ui">
             <div class="stage-kicker"><span></span><b id="v6State">THE SOFTWARE ALREADY KNOWS THE BUSINESS</b></div>
@@ -375,9 +389,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
