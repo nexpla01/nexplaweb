@@ -5,24 +5,61 @@ document.addEventListener("DOMContentLoaded", () => {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const section = $("#vision");
   const stage = $("#nexplaStage");
-  // V6.2: dependency-free scroll narrative.
-  // The DOM spatial scene is always visible. Canvas adds motion when supported.
-  const setScene = p => {
-    const cards = $$(".spatial-card");
-    cards.forEach((c,i)=>{
-      const angle=(i/cards.length)*Math.PI*2;
-      const active=Math.min(1,Math.max(0,(p-.12)/.32));
-      const pull=Math.max(0,active-.55);
-      c.style.transform=`translate(${Math.cos(angle)*pull*35}px,${Math.sin(angle)*pull*24}px)`;
-      c.style.opacity=String(1-Math.max(0,(p-.56)/.18)*.72);
+  // V7: pronounced, dependency-free cinematic scroll controller.
+  // The scene is intentionally staged: objects enter, converge, the core activates,
+  // action appears, then the system expands into a platform.
+  const hero=section;
+  const setScene=(p)=>{
+    if(!hero || !stage) return;
+    const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+    const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const progress=clamp((window.innerHeight-hero.getBoundingClientRect().top)/
+      Math.max(1,hero.getBoundingClientRect().height-window.innerHeight));
+    const cards=$$(".spatial-card"), nodes=$$(".spatial-node"), rings=$$(".spatial-ring");
+    const core=$(".spatial-core"), streams=$$(".stream");
+
+    // 0 → .24: establish the fragmented system.
+    // .24 → .46: pull context toward the core.
+    // .46 → .68: activate intelligence.
+    // .68 → .84: show action.
+    // .84 → 1: expand into platform.
+    const scene=progress<.24?1:progress<.46?2:progress<.68?3:progress<.84?4:5;
+    stage.dataset.scene=scene;
+
+    const convergence=ease(clamp((progress-.20)/.30));
+    cards.forEach((card,i)=>{
+      const a=(i/cards.length)*Math.PI*2;
+      const pull=convergence*42;
+      card.style.setProperty("--sx",`${Math.cos(a)*pull}px`);
+      card.style.setProperty("--sy",`${Math.sin(a)*pull*.72}px`);
+      card.style.transform=`translate(var(--sx),var(--sy)) scale(${1-convergence*.18})`;
     });
-    const core=$(".spatial-core");
+
+    nodes.forEach((node,i)=>{
+      const a=(i/nodes.length)*Math.PI*2;
+      const pull=ease(clamp((progress-.22)/.34))*28;
+      node.style.transform=`translate(${Math.cos(a)*pull}px,${Math.sin(a)*pull*.72}px)`;
+      node.style.opacity=String(1-ease(clamp((progress-.52)/.15))*.72);
+    });
+
     if(core){
-      const active=Math.min(1,Math.max(0,(p-.34)/.3));
-      core.style.transform=`translate(-50%,-50%) scale(${1+active*.16})`;
-      core.style.boxShadow=`0 0 0 ${32+active*18}px rgba(16,104,96,.025),0 ${24+active*12}px ${70+active*25}px rgba(16,104,96,${.13+active*.06})`;
+      const active=ease(clamp((progress-.39)/.23));
+      const action=ease(clamp((progress-.64)/.20));
+      const scale=1+active*.20-action*.05;
+      core.style.transform=`translate(-50%,-50%) scale(${scale})`;
+      core.style.setProperty("--glow",`${active}`);
+      core.style.boxShadow=`0 0 0 ${32+active*28}px rgba(16,104,96,${.025+active*.025}),
+        0 ${24+active*18}px ${70+active*35}px rgba(16,104,96,${.13+active*.10})`;
     }
-    const state=$("#v6State"),headline=$("#v6Headline"),subline=$("#v6Subline");
+
+    streams.forEach((s,i)=>{
+      const on=ease(clamp((progress-(.38+i*.015))/.22));
+      s.style.opacity=String(.08+on*.82);
+      s.style.transformOrigin="left center";
+      s.style.scale=String(.6+on*.8);
+    });
+
+    const state=$("#v6State"), headline=$("#v6Headline"), subline=$("#v6Subline");
     const copy=[
       ["THE SOFTWARE ALREADY KNOWS THE BUSINESS","Context already exists.","Inventory · Orders · Customers · Workflows"],
       ["CONTEXT BECOMES CONNECTED","The context comes together.","Data · Workflows · Customers · Business logic"],
@@ -30,37 +67,48 @@ document.addEventListener("DOMContentLoaded", () => {
       ["ACTION INSIDE THE WORKFLOW","From insight to action.","The system can do the work."],
       ["BUILT FOR THE ECOSYSTEM","Start with ERP. Build beyond it.","ERP · Intelligence · APIs · Agents · Services"]
     ];
-    const idx=p<.22?0:p<.43?1:p<.66?2:p<.82?3:4;
-    if(state)state.textContent=copy[idx][0];
-    if(headline)headline.textContent=copy[idx][1];
-    if(subline)subline.textContent=copy[idx][2];
-  };
+    const c=copy[scene-1];
+    if(state)state.textContent=c[0];
+    if(headline)headline.textContent=c[1];
+    if(subline)subline.textContent=c[2];
 
-  const hero=$("#vision");
-  const onScroll=()=>{
-    if(!hero)return;
-    const r=hero.getBoundingClientRect();
-    const p=Math.max(0,Math.min(1,(window.innerHeight-r.top)/(r.height-window.innerHeight)));
-    setScene(p);
+    // Make the transition itself visible: typography and scene gain/lose emphasis.
+    const textBlock=hero.querySelector(".hero-copy");
+    if(textBlock){
+      textBlock.style.transform=`translateY(${progress*-34}px)`;
+      textBlock.style.opacity=String(1-Math.max(0,(progress-.56)/.25)*.55);
+    }
   };
-  window.addEventListener("scroll",onScroll,{passive:true});
-  window.addEventListener("resize",onScroll,{passive:true});
-  onScroll();
+  window.addEventListener("scroll",setScene,{passive:true});
+  window.addEventListener("resize",setScene,{passive:true});
+  setScene();
 
+  // Lightweight canvas signal field. It is additive, never required for the scene.
   const canvas=$("#nexplaCanvas");
   if(canvas){
     const ctx=canvas.getContext("2d");
     if(ctx){
-      const resize=()=>{const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(r.width*d));canvas.height=Math.max(1,Math.round(r.height*d));ctx.setTransform(d,0,0,d,0,0)};
+      const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let w=0,h=0,d=1,t=0;
+      const resize=()=>{
+        const r=canvas.getBoundingClientRect();
+        d=Math.min(devicePixelRatio||1,2);w=r.width;h=r.height;
+        canvas.width=Math.max(1,Math.round(w*d));canvas.height=Math.max(1,Math.round(h*d));
+        ctx.setTransform(d,0,0,d,0,0);
+      };
       resize();window.addEventListener("resize",resize,{passive:true});
-      let t=0;
       const draw=()=>{
-        t+=.012;const r=canvas.getBoundingClientRect(),w=r.width,h=r.height,cx=w*.67,cy=h*.51;
-        ctx.clearRect(0,0,w,h);ctx.strokeStyle="rgba(16,104,96,.10)";ctx.lineWidth=1;ctx.setLineDash([2,9]);
-        ctx.beginPath();ctx.ellipse(cx,cy,Math.min(w,h)*.29,Math.min(w,h)*.19,Math.sin(t*.1),0,Math.PI*2);ctx.stroke();
+        t+=.012;ctx.clearRect(0,0,w,h);
+        const cx=w*.67,cy=h*.51;
+        ctx.strokeStyle="rgba(16,104,96,.08)";ctx.lineWidth=1;ctx.setLineDash([2,10]);
+        ctx.beginPath();ctx.ellipse(cx,cy,Math.min(w,h)*.30,Math.min(w,h)*.20,Math.sin(t*.08)*.08,0,Math.PI*2);ctx.stroke();
         ctx.setLineDash([]);
-        for(let i=0;i<20;i++){const a=i*.73+t*.15,rr=Math.min(w,h)*(.18+(i%5)*.025);ctx.fillStyle="rgba(16,104,96,.16)";ctx.beginPath();ctx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr*.72,1.5,0,Math.PI*2);ctx.fill()}
-        if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches)requestAnimationFrame(draw);
+        for(let i=0;i<30;i++){
+          const a=i*.61+t*.13, rr=Math.min(w,h)*(.14+(i%7)*.024);
+          ctx.fillStyle="rgba(16,104,96,.10)";
+          ctx.beginPath();ctx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr*.72,1.3+(i%3)*.45,0,Math.PI*2);ctx.fill();
+        }
+        if(!reduce)requestAnimationFrame(draw);
       };
       draw();
     }

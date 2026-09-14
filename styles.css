@@ -312,3 +312,26 @@ h3{font-size:18px}
  .spatial-ring{left:67%;top:64%;width:300px;height:200px}.sr-two{width:220px;height:145px}.spatial-core{left:67%;top:64%;width:90px;height:90px}.spatial-core img{width:52px;height:52px}.spatial-node{width:10px;height:10px}.spatial-card{min-width:72px;padding:6px;border-radius:9px}.spatial-card small{font-size:4px}.spatial-card b{font-size:6px}.sc-1{left:39%;top:45%}.sc-2{left:31%;top:68%}.sc-3{left:48%;top:84%}.sc-4{right:0;top:45%}.sc-5{right:-2%;top:68%}.sc-6{right:4%;top:84%}
 }
 @media(prefers-reduced-motion:reduce){.spatial-ring,.spatial-node{animation:none}}
+
+/* V7 — stronger, unmistakable scroll choreography */
+.cinematic-data-streams{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.stream{position:absolute;width:90px;height:2px;background:linear-gradient(90deg,transparent,rgba(16,104,96,.65),transparent);opacity:.65;transform-origin:left center}
+.s1{left:52%;top:31%;transform:rotate(21deg)}.s2{left:49%;top:55%;transform:rotate(-7deg)}
+.s3{left:56%;top:72%;transform:rotate(-26deg)}.s4{left:73%;top:30%;transform:rotate(155deg)}
+.s5{left:77%;top:55%;transform:rotate(185deg)}.s6{left:72%;top:73%;transform:rotate(211deg)}
+.cinematic-data-streams .stream{animation:dataPulse 2.8s ease-in-out infinite}
+.cinematic-data-streams .s2{animation-delay:-.45s}.cinematic-data-streams .s3{animation-delay:-.9s}
+.cinematic-data-streams .s4{animation-delay:-1.35s}.cinematic-data-streams .s5{animation-delay:-1.8s}.cinematic-data-streams .s6{animation-delay:-2.25s}
+@keyframes dataPulse{0%,100%{opacity:.12;transform-origin:left;scale:.55}50%{opacity:.8;scale:1.5}}
+/* Strong scene states, controlled by data-scene set in app.js */
+#nexplaStage[data-scene="1"] .spatial-card{opacity:1}
+#nexplaStage[data-scene="2"] .spatial-card{filter:blur(.1px)}
+#nexplaStage[data-scene="3"] .spatial-card{opacity:.16!important;transform:scale(.72)!important}
+#nexplaStage[data-scene="4"] .spatial-card{opacity:.06!important;transform:scale(.58)!important}
+#nexplaStage[data-scene="5"] .spatial-card{opacity:.42!important}
+#nexplaStage[data-scene="3"] .spatial-ring{border-color:rgba(16,104,96,.34)}
+#nexplaStage[data-scene="4"] .spatial-core{box-shadow:0 0 0 55px rgba(16,104,96,.045),0 25px 95px rgba(16,104,96,.20)}
+#nexplaStage[data-scene="4"] .cinematic-data-streams .stream{opacity:.9}
+#nexplaStage[data-scene="5"] .spatial-ring{width:620px;height:400px}
+#nexplaStage[data-scene="5"] .spatial-core{transform:translate(-50%,-50%) scale(.86)!important}
+.site-logo img,.nav-logo img{background:transparent!important;object-fit:contain}
