@@ -105,6 +105,111 @@ document.addEventListener("DOMContentLoaded", () => {
     const updateStage=()=>{const rect=hero.getBoundingClientRect(),p=Math.max(0,Math.min(1,(window.innerHeight*.72-rect.top)/(rect.height*.95)));const stage=p<.25?1:p<.52?2:p<.78?3:4;if(stage!==lastStage){lastStage=stage;setStage(stage)}};
     window.addEventListener("scroll",updateStage,{passive:true});updateStage();
   }
+
+  // V5 cinematic scroll choreography — GSAP/ScrollTrigger.
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    const hero = document.getElementById("vision");
+    const scene = document.getElementById("heroNetwork");
+    if (hero && scene && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      scene.classList.add("hero-cinematic-scroll");
+      const chips = gsap.utils.toArray(scene.querySelectorAll(".data-chip"));
+      const labels = gsap.utils.toArray(scene.querySelectorAll(".story-label"));
+      const lines = gsap.utils.toArray(scene.querySelectorAll(".story-line"));
+      const signals = gsap.utils.toArray(scene.querySelectorAll(".story-signal"));
+      const legacy = scene.querySelector(".legacy-product");
+      const ai = scene.querySelector(".ai-product");
+      const captions = {
+        context: scene.querySelector(".caption-context"),
+        intelligence: scene.querySelector(".caption-intelligence"),
+        action: scene.querySelector(".caption-action")
+      };
+      const words = {
+        connect: scene.querySelector(".word-connect"),
+        intelligence: scene.querySelector(".word-intelligence"),
+        action: scene.querySelector(".word-action")
+      };
+      const svg = scene.querySelector(".hero-story-svg");
+      const core = scene.querySelector(".hero-core");
+      const logo = scene.querySelector(".hero-core-logo");
+      const backdrop = scene.querySelector(".hero-scene-backdrop");
+      const grid = scene.querySelector(".hero-scene-grid");
+      const state = scene.querySelector("#sceneState");
+      const metric = scene.querySelector("#sceneMetric");
+      const metricValue = scene.querySelector("#sceneMetricValue");
+
+      // Initial composition: fragments are visible, but not yet connected.
+      gsap.set(chips,{opacity:.72,scale:.92});
+      gsap.set(labels,{opacity:.75});
+      gsap.set(lines,{opacity:.18,strokeDashoffset:0});
+      gsap.set(signals,{opacity:.18});
+      gsap.set(legacy,{opacity:.62,x:0});
+      gsap.set(ai,{opacity:0,x:35});
+      gsap.set(captions.context,{opacity:1,filter:"blur(0px)",y:0});
+      gsap.set(words.intelligence,{opacity:0});
+      gsap.set(words.action,{opacity:0});
+
+      const tl = gsap.timeline({
+        defaults:{ease:"power3.inOut"},
+        scrollTrigger:{
+          trigger:hero, start:"top top", end:"bottom bottom", scrub:1.15
+        }
+      });
+
+      // 0 → 30%: fragmented context converges.
+      tl.to(chips,{duration:1,opacity:1,scale:1,stagger:.045},0)
+        .to(labels,{duration:.75,opacity:1,stagger:.035},0)
+        .to(lines,{duration:1.1,opacity:.45,strokeDashoffset:-28,stagger:.02},.12)
+        .to(signals,{duration:1,opacity:.65,stagger:.025},.12)
+        .to(scene.querySelector(".hero-core-halo"),{duration:.9,scale:1.12,opacity:.9},.2)
+        .to(backdrop,{duration:1,scale:1.08,opacity:1},.2)
+        .to(grid,{duration:1,opacity:.72,y:-12},.2)
+        .to(captions.context,{duration:.5,opacity:0,filter:"blur(5px)",y:-12},.72)
+        .to(words.connect,{duration:.5,opacity:.65,scale:1},.76)
+        .to(words.connect,{duration:.6,opacity:0,scale:1.08},1.25)
+
+      // 30 → 58%: enter the intelligence layer.
+        .to(chips,{duration:1,opacity:.16,scale:.72,x:0,y:0,stagger:.03},1.3)
+        .to(labels,{duration:.75,opacity:.2,scale:.8,stagger:.025},1.35)
+        .to(lines,{duration:.8,opacity:.72,strokeDashoffset:-90,stagger:.02},1.35)
+        .to(svg,{duration:1.1,scale:1.13,rotation:-2},1.35)
+        .to(core,{duration:.8,scale:1.18},1.55)
+        .to(logo,{duration:.8,scale:1.16,rotation:3},1.55)
+        .to(words.intelligence,{duration:.55,opacity:.85,scale:1},1.75)
+        .to(captions.intelligence,{duration:.5,opacity:1,filter:"blur(0px)",y:0},1.9)
+        .call(()=>{state.textContent="INTELLIGENCE LAYER ACTIVE";metric.textContent="UNDERSTAND · DECIDE · EXECUTE";metricValue.textContent="→ ACTION, NOT JUST ANSWERS"},[],1.9)
+        .to(words.intelligence,{duration:.5,opacity:0,scale:1.08},2.45)
+        .to(captions.intelligence,{duration:.45,opacity:0,filter:"blur(5px)",y:-10},2.5)
+
+      // 58 → 82%: move from intelligence into action.
+        .to(legacy,{duration:.8,opacity:.08,x:-55,rotationY:18},2.65)
+        .to(ai,{duration:.9,opacity:1,x:0,rotationY:-3},2.75)
+        .to(labels,{duration:.7,opacity:.1,scale:.72,stagger:.02},2.75)
+        .to(lines,{duration:.7,opacity:.28},2.75)
+        .to(svg,{duration:1,scale:1.2,rotation:2},2.75)
+        .to(words.action,{duration:.5,opacity:.8,scale:1},3.05)
+        .to(captions.action,{duration:.5,opacity:1,filter:"blur(0px)",y:0},3.2)
+        .call(()=>{metric.textContent="LIVE WORKFLOW";metricValue.textContent="→ EXECUTE INSIDE THE ERP"},[],3.2)
+        .to(words.action,{duration:.55,opacity:0,scale:1.1},3.72)
+        .to(captions.action,{duration:.45,opacity:0,filter:"blur(5px)",y:-10},3.78)
+
+      // 82 → 100%: reveal the connected ecosystem.
+        .to(ai,{duration:.75,opacity:.25,scale:.88,x:0},3.95)
+        .to(chips,{duration:.9,opacity:.35,scale:.82,stagger:.025},3.95)
+        .to(labels,{duration:.7,opacity:.65,scale:1,stagger:.025},4.0)
+        .to(lines,{duration:1,opacity:.55,strokeDashoffset:-180},4.0)
+        .to(svg,{duration:1.1,scale:1.05,rotation:0},4.0)
+        .to(captions.context,{duration:.45,opacity:1,filter:"blur(0px)",y:0},4.25)
+        .call(()=>{state.textContent="BUILT FOR THE ECOSYSTEM";metric.textContent="ERP · INTELLIGENCE · PLATFORM";metricValue.textContent="→ OTHERS BUILD ON IT"},[],4.25);
+
+      // Micro-interaction: the scene has gentle pointer depth, independent of scroll.
+      let px=0,py=0,tx=0,ty=0;
+      scene.addEventListener("pointermove",e=>{const r=scene.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*8;ty=((e.clientY-r.top)/r.height-.5)*6});
+      scene.addEventListener("pointerleave",()=>{tx=0;ty=0});
+      gsap.ticker.add(()=>{px+=(tx-px)*.05;py+=(ty-py)*.05;gsap.set(svg,{x:px,y:py})});
+    }
+  }
+
   $("#year").textContent = new Date().getFullYear();
 
   // Scroll progress
