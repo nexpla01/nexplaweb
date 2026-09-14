@@ -52,3 +52,16 @@ The hero now includes a custom SVG/canvas-free “living intelligence network”
 - pointer-based 3D parallax
 - reduced-motion support
 - no animation library or external runtime dependency
+
+
+## V3 motion system
+
+This version adds narrative motion across the page:
+- Cinematic ERP -> intelligence transformation scene
+- Interactive Understand -> Decide -> Execute steps
+- AI demo state-transition animation
+- Platform signal / intelligence-layer animation
+- Compounding flywheel active pulse
+- Pointer-responsive dark belief section
+- Existing hero living network retained
+- Reduced-motion support throughout

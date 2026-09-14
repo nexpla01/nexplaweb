@@ -177,6 +177,56 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#workflowAnswer b").textContent = `“${workflowQuestions[name]}”`;
   }));
 
+
+  // Narrative transformation steps
+  const transformSteps = $$(".transform-step");
+  const transformStage = $("#transformStage");
+  const transformState = {
+    1: {legacy:"translateZ(-30px) rotateY(7deg)", intel:"translateZ(40px) rotateY(-2deg)"},
+    2: {legacy:"translateZ(-70px) rotateY(10deg) scale(.94)", intel:"translateZ(70px) rotateY(-3deg) scale(1.015)"},
+    3: {legacy:"translateZ(-120px) rotateY(13deg) scale(.88)", intel:"translateZ(95px) rotateY(-4deg) scale(1.025)"}
+  };
+  transformSteps.forEach(btn => btn.addEventListener("click", () => {
+    transformSteps.forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    const state = transformState[btn.dataset.transform];
+    const legacy = transformStage?.querySelector(".legacy-window");
+    const intel = transformStage?.querySelector(".intelligence-window");
+    if(legacy && intel){ legacy.style.transform = state.legacy; intel.style.transform = state.intel; }
+  }));
+
+  // Make the AI demo feel like a state transition rather than a card swap.
+  $$(".ai-mode").forEach(btn => btn.addEventListener("click", () => {
+    const win = document.querySelector(".ai-window");
+    if(!win) return;
+    win.classList.remove("ai-thinking");
+    void win.offsetWidth;
+    win.classList.add("ai-thinking");
+    setTimeout(()=>win.classList.remove("ai-thinking"), 1050);
+  }));
+
+  // Subtle flywheel energy: the active pulse travels around the four ideas.
+  const flywheel = document.querySelector(".flywheel");
+  const flyNodes = $$(".fly-node");
+  if(flywheel && flyNodes.length && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    let fi=0;
+    setInterval(()=>{
+      flyNodes.forEach(n=>n.classList.remove("hot"));
+      flyNodes[fi % flyNodes.length].classList.add("hot");
+      fi++;
+    }, 1450);
+  }
+
+  // Section-aware pointer glow on the dark belief panel.
+  const belief = document.querySelector(".belief");
+  if(belief && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    belief.addEventListener("pointermove", e=>{
+      const r=belief.getBoundingClientRect();
+      belief.style.setProperty("--mx", `${((e.clientX-r.left)/r.width)*100}%`);
+      belief.style.setProperty("--my", `${((e.clientY-r.top)/r.height)*100}%`);
+    });
+  }
+
   // Ask Nexpla mini-assistant
   const askPanel = $("#askPanel"), askFab = $("#askFab"), askMessages = $("#askMessages"), askInput = $("#askInput");
   const openAsk = () => { askPanel.classList.add("open"); askPanel.setAttribute("aria-hidden","false"); setTimeout(()=>askInput.focus(),120); };
